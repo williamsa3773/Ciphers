@@ -1,91 +1,40 @@
-const letters = 'abcdefghijklmnopqrstuvwxyz';
+const allChars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*() ';
+const charMap = new Map();
+allChars.split('').forEach((char, index) => charMap.set(char, index));
 
-const lowercase = Array.from(letters, (val, index) => ({ key: index, value: val}));
-const uppercase = Array.from(letters.toUpperCase(), (val, index) => ({ key: index, value: val}));
+function Shift(shift, char, direction) {
+    const length = allChars.length;
+    let index = charMap.get(char);
+    
+    if(index === undefined) return char;
+    if ( direction === 0)
+        index = (index + shift) % length;
+    else if ( direction == 1)
+        index = ( index -shift+ length) % length;
 
-function Search(string) {
-    for (let i = 0; i < letters.length; i++)
-    {
-        if(lowercase[i].value === string) {
-            return lowercase[i].key;
-        } else if(uppercase[i].value === string) {
-            return uppercase[i].key;
-        }
-    }
-    return 'isnt a letter';
-};
-
-function CheckCase(string) {
-    if(string === string.toUpperCase())
-        return 1;
-    if(string === string.toLowerCase())
-        return 0;
-};
-
-function Shift(shift, input, casing, direction) //shift index, string to be shifted, upper or lower, left or right
-{
-    let index = 0;
-    switch (direction) {
-        //right (encoding)
-        case 0:
-            //uppercase
-            if(casing === 1) {
-                index = shift+input;
-                if(index > letters.length) {
-                    index = index - 26;
-                }
-                return uppercase[index].value;
-            }
-            
-            //lowercase
-            if(casing === 0) {
-                index = shift + input;
-                if(index > letters.length) {
-                    index = index - 26;
-                }
-                return lowercase[index].value;
-            }
-        break;
-        //left (decoding)
-        case 1:
-            //uppercase
-            if(casing === 1) {
-                index = input - shift;
-                if(index < 0) {
-                    index = 26 + index;
-                }
-                return uppercase[index].value;
-            }
-            
-            //lowercase
-            if(casing === 0) {
-                index = input - shift;
-                if(index < 0) {
-                    index = 26 + index;
-                }
-                return lowercase[index].value;
-            }
-        break;
-    }
+    return allChars[index];
 }
 
 function Encode(shift, input) {
-    return Shift(shift, Search(input), CheckCase(input), 0);
+    return input.split('').map(char => Shift(shift, char, 0)).join('');
 }
 
 function Decode(shift, input) {
-    let newString = ''
-    newString = Shift(shift, Search(input), CheckCase(input), 1);
-    return newString;
+    return input.split('').map(char => Shift(shift, char, 1)).join('');
 }
 
+// Test cases
 
-let shift, input;
-num = 5, string = 'd'
-console.log(Encode(num, string) , Decode(num, Encode(num, string))); //expected i
-num = 7, string = 'q'
-console.log(Encode(num, string) , Decode(num, Encode(num, string))); //expected x
-num = 2, string = 'Z'
-console.log(Encode(num, string) , Decode(num, Encode(num, string))); //expected B
-num = 3, string = 'B'
-console.log(Encode(num, string) , Decode(num, Encode(num, string))); //expected E
+let num, string;
+
+num = 3, string = 'hello123!';
+console.log("Encoding Message to:", Encode(num, string), '\n', "Decoding Message to:", Decode(num, Encode(num, string)));
+
+num = 6, string = 'oreo is a mom now!';
+console.log("Encoding Message to:", Encode(num, string), '\n', "Decoding Message to:", Decode(num, Encode(num, string)));
+
+num = 25, string = 'i want mangoes with chicken nuggets!';
+console.log("Encoding Message to:", Encode(num, string), '\n', "Decoding Message to:", Decode(num, Encode(num, string)));
+
+num = Math.floor(Math.random() * allChars.length), string = "HieroNese!7"
+console.log("Encoding Message to:", Encode(num, string), '\n', "Decoding Message to:", Decode(num, Encode(num, string)));
